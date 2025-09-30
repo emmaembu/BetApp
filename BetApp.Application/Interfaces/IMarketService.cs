@@ -1,4 +1,4 @@
-﻿using BetApp.Domain.Entities;
+﻿using BetApp.Application.DTOs;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +9,10 @@ namespace BetApp.Application.Interfaces
 {
     public interface IMarketService
     {
-        Task<IEnumerable<Market>> GetTopOffersAsync();
+        Task<IEnumerable<MarketDto>> GetTopOffersAsync();
 
-        Task<IEnumerable<Market>> GetValidMarketsForMatchAsync(Guid matchId);
+        Task<IEnumerable<MarketDto>> GetValidMarketsForMatchAsync(Guid matchId);
 
-        Task<Market> AddMarketToMatchAsync(Guid matchId, int type, decimal odds, bool isTopOffer);
+        Task<Guid> AddMarketToMatchAsync(MarketDto marketDto);
     }
 }

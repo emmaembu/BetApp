@@ -9,7 +9,7 @@ namespace BetApp.Domain.Entities
 {
     public class BetSlip
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } 
         public Guid WalletId { get; set; }
         public Wallet? Wallet { get; set; }
         public decimal Stake { get; set; }

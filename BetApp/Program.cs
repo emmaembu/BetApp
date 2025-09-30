@@ -1,17 +1,26 @@
 using BetApp.Application.Interfaces;
 using BetApp.Application.Services;
+using BetApp.Infrastructure.Extensions;
 using BetApp.Infrastructure.Persistence;
 using BetApp.Infrastructure.Persistence.Mappings;
 using BetApp.Infrastructure.Repositories;
 using BetApp.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using BetApp.Application.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // register DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// register repositories
+builder.Services.AddInfrastructure(builder.Configuration);
+
+//register services
+builder.Services.AddApplication();
+
 
 // add controllers, swagger etc.
 builder.Services.AddControllers();
@@ -29,16 +38,6 @@ builder.Services.AddSwaggerGen(
                    );
         //c.AddServer(new Microsoft.OpenApi.Models.OpenApiServer { Url = "https://localhost:7126/" });
     });
-// register repositories
-builder.Services.AddScoped<IWalletRepository, WalletRepository>();
-builder.Services.AddScoped<IBetRepository, BetRepository>();
-builder.Services.AddScoped<IMarketRepository, MarketRepository>();
-builder.Services.AddScoped<IMatchRepository, MatchRepository>();
-
-//register services
-builder.Services.AddScoped<IBetService, BetService>();
-builder.Services.AddScoped<IWalletService, WalletService>();
-builder.Services.AddScoped<IMarketService, MarketService>();
 
 var app = builder.Build();
 

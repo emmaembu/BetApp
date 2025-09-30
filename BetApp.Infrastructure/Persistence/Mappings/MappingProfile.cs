@@ -2,6 +2,7 @@
 using BetApp.Domain.Entities;
 using BetApp.Domain.Enums;
 using System.Linq;
+using BetApp.Domain.Events;
 
 namespace BetApp.Infrastructure.Persistence.Mappings
 {
@@ -73,6 +74,8 @@ namespace BetApp.Infrastructure.Persistence.Mappings
             }
 
             // TransactionEntity -> Transaction (Domain)
+
+            // BetSlipEntity -> BetSlip (Domain)
             public static Transaction ToDomain(this TransactionEntity entity)
             {
                 if (entity == null) return null!;
@@ -88,8 +91,6 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                     Description = entity.Description
                 };
             }
-
-            // BetSlipEntity -> BetSlip (Domain)
             public static BetSlip ToDomain(this BetSlipEntity entity)
             {
                 if (entity == null) return null!;
@@ -117,7 +118,7 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                 };
             }
 
-            // Opcionalno: Domain -> DbEntity
+            // Domain -> DbEntity
             public static MatchEntity ToDbEntity(this Match domain)
             {
                 if (domain == null) return null!;
@@ -200,5 +201,31 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                     BetType = (int)domain.Type
                 };
             }
+
+        public static OutboxMessageEntity ToDbEntity(this OutboxMessage domain)
+        {
+            return new OutboxMessageEntity
+            {
+                Id = domain.Id,
+                AggregateId = domain.AggregateId,
+                OccuredOn = domain.OccuredOn,
+                ProcessedOn = domain.ProcessedOn,
+                Type = domain.Type,
+                Payload = domain.Payload,
+                Error = domain.Error ?? ""
+            };
+
+        }
+
+        public static OutboxMessage ToDomain(this OutboxMessageEntity entity)
+        {
+           return new OutboxMessage(entity.Type, entity.AggregateId, entity.Payload)
+            {
+                Id = entity.Id,
+                OccuredOn = entity.OccuredOn,
+                ProcessedOn = (DateTime)entity.ProcessedOn, // re-do
+                Payload = entity.Payload
+            };
+        }
         }
     }

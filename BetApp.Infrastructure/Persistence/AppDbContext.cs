@@ -21,7 +21,7 @@ namespace BetApp.Infrastructure.Persistence
         public DbSet<TransactionEntity> Transactions { get; set; } = null!;
         public DbSet<BetSlipEntity> BetSlips { get; set; } = null!;
         public DbSet<BetItemEntity> BetItems { get; set; } = null!;
-
+        public DbSet<OutboxMessageEntity> OutboxMessages { get; set; } = null!;
             protected override void OnModelCreating(ModelBuilder modelBuilder)
             {
                 // Apply all IEntityTypeConfiguration<T> from this assembly (Configurations folder)

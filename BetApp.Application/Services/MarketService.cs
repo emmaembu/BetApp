@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
+using BetApp.Application.DTOs;
 using BetApp.Application.Interfaces;
+using BetApp.Application.Mappers;
 using BetApp.Domain.Entities;
 using BetApp.Domain.Enums;
 using System;
@@ -22,43 +24,48 @@ namespace BetApp.Application.Services
         }
 
         // Add market by rules and topp offer
-        public async Task<Market> AddMarketToMatchAsync(Guid matchId, int type, decimal odds, bool isTopOffer)
+        public async Task<Guid> AddMarketToMatchAsync(MarketDto marketDto)
         {
-            if (odds < 1.0m)
+            if (marketDto.Odds < 1.0m)
                 throw new ArgumentException("Odds must be >= 1.0");
 
-            var match = await _matchRepository.GetByIdAsync(matchId);
+            var match = await _matchRepository.GetByIdAsync(marketDto.MatchId);
             if (match == null)
                 throw new Exception("Match not found");
 
-            var market = new Market
+            var market = new Market // u entity
             {
                 Id = Guid.NewGuid(),
                 MatchId = match.Id,
-                Type = (BetType)type,
-                Odds = odds,
-                IsTopOffer = isTopOffer,
-                IsActive = odds >= 1.0m
+                Type = Enum.Parse<BetType>(marketDto.Type),
+                Odds = marketDto.Odds,
+                IsTopOffer = marketDto.IsTopOffer,
+                IsActive = marketDto.Odds >= 1.0m
             };
 
             await _marketRepository.AddAsync(market);
             await _marketRepository.SaveChangesAsync();
 
-            return market;
+            return market.Id;
         }
 
         // top offers
-        public async Task<IEnumerable<Market>> GetTopOffersAsync()
+        public async Task<IEnumerable<MarketDto>> GetTopOffersAsync()
         {
-            return (await _marketRepository.GetAllActiveAsync()).Where(m => m.IsTopOffer);
+            var markets = await _marketRepository.GetAllActiveAsync();
+
+            var topOffers = markets.Where(m => m.IsTopOffer);
+
+            return topOffers.Select(e => e.ToDto()).ToList();
         }
           
 
         // get markets for match
-        public async Task<IEnumerable<Market>> GetValidMarketsForMatchAsync(Guid matchId)
+        public async Task<IEnumerable<MarketDto>> GetValidMarketsForMatchAsync(Guid matchId)
         {
-            return (await _marketRepository.GetMarketsByMatchIdAsync(matchId))
-            .Where(m => m.IsActive && m.Odds >= 1.0m);
+            var markets = await _marketRepository.GetMarketsByMatchIdAsync(matchId);
+            var matchMarkets = markets.Where(m => m.IsActive && m.Odds >= 1.0m);
+            return matchMarkets.Select(e=>e.ToDto()).ToList();  
         }
     }
 }

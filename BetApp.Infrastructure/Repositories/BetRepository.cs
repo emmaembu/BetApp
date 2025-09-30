@@ -33,5 +33,11 @@ namespace BetApp.Infrastructure.Repositories
             var bets =  await _appDbContext.BetSlips.Include(bs => bs.BetItems).ThenInclude(bi => bi.Market).Where(bs => bs.WalletId == id).ToListAsync();
             return bets.Select(e => e.ToDomain()).ToList();
         }
+
+        public async Task<BetSlip?> GetByIdAsync(Guid id)
+        {
+            var entity = await _appDbContext.BetSlips.Include(b=>b.BetItems).ThenInclude(i=>i.Market).FirstOrDefaultAsync(b=>b.Id == id);
+            return entity?.ToDomain();
+        }
     }
 }

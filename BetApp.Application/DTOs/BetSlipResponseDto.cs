@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace BetApp.Application.DTOs
 {
-    public class BetSlipDto
+    public class BetSlipResponseDto
     {
         public Guid Id { get; set; }
-
         public Guid WalletId { get; set; }
 
         public List<BetItemDto> Items { get; set; } = new();

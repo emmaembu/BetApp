@@ -12,5 +12,7 @@ namespace BetApp.Application.Interfaces
         Task AddAsync(BetSlip betSlip);
 
         Task<IEnumerable<BetSlip>> GetByWalletIdAsync(Guid id);
+
+        Task<BetSlip?> GetByIdAsync(Guid id);
     }
 }

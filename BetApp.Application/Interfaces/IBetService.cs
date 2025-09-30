@@ -6,8 +6,8 @@ namespace BetApp.Application.Interfaces
 {
     public interface IBetService
     {
-        Task PlaceBetAsync(BetSlipDto betSlipDto);
+        Task<Guid> PlaceBetAsync(BetSlipRequestDto betSlipDto);
 
-        Task<IEnumerable<BetSlipDto>> GetBetsByWalletAsync(Guid id);
+        Task<IEnumerable<BetSlipRequestDto>> GetBetsByWalletAsync(Guid id);
     }
 }

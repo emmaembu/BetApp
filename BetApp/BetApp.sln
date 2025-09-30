@@ -1,15 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36127.28 d17.14
+VisualStudioVersion = 17.14.36127.28
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp", "..\..\src\BetApp\BetApp.csproj", "{7248A8E5-CA96-4A74-8320-4FBE2FE18E72}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp", "BetApp.csproj", "{7248A8E5-CA96-4A74-8320-4FBE2FE18E72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Domain", "..\..\src\BetApp.Domain\BetApp.Domain.csproj", "{8BABDD30-BE05-4710-91DD-751106A817B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Domain", "..\BetApp.Domain\BetApp.Domain.csproj", "{8BABDD30-BE05-4710-91DD-751106A817B2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Application", "..\..\src\BetApp.Application\BetApp.Application.csproj", "{29724FBD-0681-45C9-AD4C-4CEBEDF174A1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Application", "..\BetApp.Application\BetApp.Application.csproj", "{29724FBD-0681-45C9-AD4C-4CEBEDF174A1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Infrastructure", "..\..\src\BetApp.Infrastructure\BetApp.Infrastructure.csproj", "{FF96DEE3-72C4-4275-9E40-964DC9010871}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Infrastructure", "..\BetApp.Infrastructure\BetApp.Infrastructure.csproj", "{FF96DEE3-72C4-4275-9E40-964DC9010871}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetApp.Worker", "..\BetApp.Worker\BetApp.Worker.csproj", "{9D18E880-733B-4F09-94A7-ED8A0D066246}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{FF96DEE3-72C4-4275-9E40-964DC9010871}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FF96DEE3-72C4-4275-9E40-964DC9010871}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FF96DEE3-72C4-4275-9E40-964DC9010871}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9D18E880-733B-4F09-94A7-ED8A0D066246}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9D18E880-733B-4F09-94A7-ED8A0D066246}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9D18E880-733B-4F09-94A7-ED8A0D066246}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9D18E880-733B-4F09-94A7-ED8A0D066246}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

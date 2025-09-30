@@ -16,12 +16,12 @@ namespace BetApp.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> PlaceBet([FromBody] BetSlipDto betSlipDto)
+        public async Task<IActionResult> PlaceBet([FromBody] BetSlipRequestDto betSlipDto)
         {
             try
             {
-                await _betService.PlaceBetAsync(betSlipDto);
-                return Ok(new { Message = "Bet placed successfully", BetSlipId = betSlipDto.Id });
+                var betId = await _betService.PlaceBetAsync(betSlipDto);
+                return Ok(new { Message = "Bet placed successfully", BetSlipId = betId });
             }
             catch (Exception ex)
             {

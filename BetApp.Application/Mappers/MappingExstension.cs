@@ -33,24 +33,23 @@ namespace BetApp.Application.Mappers
         }
 
         // BetSlip
-        public static BetSlipDto ToDto(this BetSlip betSlip)
+        public static BetSlipRequestDto ToDto(this BetSlip betSlip)
         {
             if (betSlip == null) return null;
-            return new BetSlipDto
+            return new BetSlipRequestDto
             {
-                Id = betSlip.Id,
                 WalletId = betSlip.WalletId,
                 TotalStake = betSlip.TotalStake,
                 Items = betSlip.Items?.Select(i => i.ToDto()).ToList() ?? new List<BetItemDto>()
             };
         }
 
-        public static BetSlip ToDomain(this BetSlipDto dto)
+        public static BetSlip ToDomain(this BetSlipRequestDto dto, Guid betSlipId)
         {
             if (dto == null) return null;
             return new BetSlip
             {
-                Id = dto.Id,
+                Id = betSlipId,
                 WalletId = dto.WalletId,
                 Stake = dto.TotalStake,
                 Items = dto.Items?.Select(i => i.ToDomain()).ToList() ?? new List<BetItem>()

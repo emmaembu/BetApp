@@ -2,10 +2,13 @@
 using BetApp.Application.Interfaces;
 using BetApp.Application.Mappers;
 using BetApp.Domain.Entities;
+using BetApp.Domain.Events;
+using StackifyLib.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace BetApp.Application.Services
@@ -13,26 +16,40 @@ namespace BetApp.Application.Services
     public class BetService :IBetService
     {
         private readonly IBetRepository _betRepository;
-        private readonly IWalletService _walletService;
-
-        public BetService(IBetRepository betRepository, IWalletService walletService)
+        private readonly IOutboxRepository _outboxRepository;
+       
+        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository)
         {
-            _walletService = walletService;
             _betRepository = betRepository;
+            _outboxRepository = outboxRepository;
         }
 
-        public async Task PlaceBetAsync(BetSlipDto betSlipDto)
+        public async Task<Guid> PlaceBetAsync(BetSlipRequestDto betSlipDto)
         {
-            var betSlip = betSlipDto.ToDomain();
+
+            var betSlipId = SequentialGuid.NewGuid();
+            var betSlip = betSlipDto.ToDomain(betSlipId);
 
             ValidateBetSlip(betSlip);
 
-            await _walletService.DeductForBetAsync(betSlip.WalletId, betSlip.TotalOdds, "BetSlip placement");
+            //await _walletService.DeductForBetAsync(betSlip.WalletId, betSlip.TotalOdds, "BetSlip placement");
 
             await _betRepository.AddAsync(betSlip);
+
+            var payload = JsonSerializer.Serialize(betSlip);
+            //add outbox message
+            var outboxMessage = new OutboxMessage
+            (type: "BetPlaced",
+                aggregateId: betSlip.Id,
+                payload: payload
+            );
+
+            await _outboxRepository.AddAsync(outboxMessage);
+
+            return betSlip.Id;
         }
 
-        public async Task<IEnumerable<BetSlipDto>> GetBetsByWalletAsync(Guid id)
+        public async Task<IEnumerable<BetSlipRequestDto>> GetBetsByWalletAsync(Guid id)
         {
             var betSlips = await _betRepository.GetByWalletIdAsync(id);
             return betSlips.Select(e => e.ToDto()).ToList();
