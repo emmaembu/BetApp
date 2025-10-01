@@ -22,6 +22,13 @@ namespace BetApp.Infrastructure.Repositories
             return markets?.ToDomain();
         }
 
+        public async Task<IReadOnlyList<Market>> GetByIdsAsync(IEnumerable<Guid> ids)
+        {
+            var entities = await _appDbContext.Markets.Include(m => m.Match).Where(m => ids.Contains(m.Id)).ToListAsync();
+
+            return entities.Select(e => e.ToDomain()).ToList();
+        }
+
         public async Task<IEnumerable<Market>> GetMarketsByMatchIdAsync(Guid matchId)
         {
             var markets =  await _appDbContext.Markets.Where(m => m.MatchId == matchId).ToListAsync();// da dodam odd

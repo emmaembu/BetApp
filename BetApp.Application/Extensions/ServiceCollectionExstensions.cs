@@ -1,5 +1,6 @@
 ﻿using BetApp.Application.Interfaces;
 using BetApp.Application.Services;
+using BetApp.Application.Validators;
 using Microsoft.Extensions.DependencyInjection;
 using System.Runtime.CompilerServices;
 
@@ -13,6 +14,7 @@ namespace BetApp.Application.Extensions
             services.AddScoped<IMarketService, MarketService>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IMatchService, MatchService>();
+            services.AddScoped<IBetSlipValidator, BetSlipValidator>();
 
             return services;
         }

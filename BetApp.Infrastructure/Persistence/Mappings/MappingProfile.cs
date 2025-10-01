@@ -111,7 +111,7 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                 return new BetItem
                 {
                     Id = entity.Id,
-                    BetSlipId = entity.BetSlipId,
+                   // BetSlipId = entity.BetSlipId,
                     MarketId = entity.MarketId,
                     OddsAtPlacement = entity.OddsAtPlacement,
                     Type = (BetType)entity.BetType
@@ -195,7 +195,7 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                 return new BetItemEntity
                 {
                     Id = domain.Id,
-                    BetSlipId = domain.BetSlipId,
+                    //BetSlipId = domain.BetSlipId,
                     MarketId = domain.MarketId,
                     OddsAtPlacement = domain.OddsAtPlacement,
                     BetType = (int)domain.Type

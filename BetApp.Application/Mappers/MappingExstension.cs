@@ -46,14 +46,28 @@ namespace BetApp.Application.Mappers
 
         public static BetSlip ToDomain(this BetSlipRequestDto dto, Guid betSlipId)
         {
-            if (dto == null) return null;
-            return new BetSlip
+            var betSlip =  new BetSlip
             {
                 Id = betSlipId,
                 WalletId = dto.WalletId,
-                Stake = dto.TotalStake,
                 Items = dto.Items?.Select(i => i.ToDomain()).ToList() ?? new List<BetItem>()
             };
+
+            decimal itemStake = dto.TotalStake/dto.Items.Count;
+
+            foreach(var item in dto.Items)
+            {
+                betSlip.Items.Add(new BetItem
+                {
+                    Id = Guid.NewGuid(),
+                    MatchId = item.MatchId, 
+                    MarketId = item.MarketId,
+                    Type = item.BetType,
+                    OddsAtPlacement = item.OddsAtPlacement
+                });
+            }
+
+            return betSlip;
         }
 
         // BetItem
@@ -64,7 +78,7 @@ namespace BetApp.Application.Mappers
             {
                 MarketId = item.MarketId,
                 OddsAtPlacement = item.OddsAtPlacement,
-                BetType = item.Type.ToString()
+                BetType = item.Type
             };
         }
 
@@ -73,9 +87,11 @@ namespace BetApp.Application.Mappers
             if (dto == null) return null;
             return new BetItem
             {
+                Id = Guid.NewGuid(),
+                MatchId = dto.MatchId,
                 MarketId = dto.MarketId,
                 OddsAtPlacement = dto.OddsAtPlacement,
-                Type = Enum.Parse<BetType>(dto.BetType)
+                Type = dto.BetType
             };
         }
 

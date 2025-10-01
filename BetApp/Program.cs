@@ -8,6 +8,9 @@ using BetApp.Infrastructure.Seed;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using BetApp.Application.Extensions;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using BetApp.Application.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,6 +27,8 @@ builder.Services.AddApplication();
 
 // add controllers, swagger etc.
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<BetSlipRequestValidator>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(
     c => {

@@ -17,11 +17,13 @@ namespace BetApp.Application.Services
     {
         private readonly IBetRepository _betRepository;
         private readonly IOutboxRepository _outboxRepository;
+        private readonly IBetSlipValidator _betSlipValidator;
        
-        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository)
+        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository, IBetSlipValidator betSlipValidator)
         {
             _betRepository = betRepository;
             _outboxRepository = outboxRepository;
+            _betSlipValidator = betSlipValidator;
         }
 
         public async Task<Guid> PlaceBetAsync(BetSlipRequestDto betSlipDto)
@@ -30,9 +32,7 @@ namespace BetApp.Application.Services
             var betSlipId = SequentialGuid.NewGuid();
             var betSlip = betSlipDto.ToDomain(betSlipId);
 
-            ValidateBetSlip(betSlip);
-
-            //await _walletService.DeductForBetAsync(betSlip.WalletId, betSlip.TotalOdds, "BetSlip placement");
+            await _betSlipValidator.ValidateAsync(betSlip);// insert into try catch
 
             await _betRepository.AddAsync(betSlip);
 
@@ -55,19 +55,19 @@ namespace BetApp.Application.Services
             return betSlips.Select(e => e.ToDto()).ToList();
         }
 
-        private void ValidateBetSlip(BetSlip betSlip)
-        {
-            if (betSlip.Items.Any(i => !i.Market!.IsActive || i.Market.Odds < 1.0M))
-                throw new InvalidOperationException("Invalid market.");
+        //private void ValidateBetSlip(BetSlip betSlip)
+        //{
+        //    if (betSlip.Items.Any(i => !i.Market!.IsActive || i.Market.Odds < 1.0M))
+        //        throw new InvalidOperationException("Invalid market.");
 
-            if (betSlip.ContainsTopOffer)
-            {
-                if (betSlip.Items.Count(i => i.Market!.IsTopOffer) > 1)
-                    throw new InvalidOperationException("Cannot combine multiple Top Offers");
+        //    if (betSlip.ContainsTopOffer)
+        //    {
+        //        if (betSlip.Items.Count(i => i.Market!.IsTopOffer) > 1)
+        //            throw new InvalidOperationException("Cannot combine multiple Top Offers");
 
-                if (betSlip.Items.Any(i => !i.Market!.IsTopOffer))
-                    throw new InvalidOperationException("Cannot mix Top Offer with regular market");
-            }
-        }
+        //        if (betSlip.Items.Any(i => !i.Market!.IsTopOffer))
+        //            throw new InvalidOperationException("Cannot mix Top Offer with regular market");
+        //    }
+        //}
     }
 }

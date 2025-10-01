@@ -10,6 +10,7 @@ namespace BetApp.Application.Interfaces
     public interface IMarketRepository
     {
         Task<Market?> GetByIdAsync(Guid id);
+        Task<IReadOnlyList<Market>> GetByIdsAsync(IEnumerable<Guid> ids);
 
         Task<IEnumerable<Market>> GetAllActiveAsync();
 
