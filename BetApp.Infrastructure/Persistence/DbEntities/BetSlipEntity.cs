@@ -18,7 +18,8 @@ namespace BetApp.Infrastructure.Persistence.DbEntities
         public decimal FeePercent { get; set; } 
         public decimal PotentialPayout { get; set; }
         public DateTime PlacedAt { get; set; }
+        public decimal Payout { get; set; }
         public ICollection<BetItemEntity> BetItems { get; set; } = null!;
-        public bool ContainsTopOffer => BetItems.Any(i=> i.Market.IsTopOffer);
+        public bool ContainsTopOffer => BetItems.Any(i=> i.MarketEntity.IsTopOffer);
     }
 }

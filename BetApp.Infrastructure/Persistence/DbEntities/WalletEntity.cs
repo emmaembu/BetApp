@@ -11,6 +11,8 @@ namespace BetApp.Infrastructure.Persistence.DbEntities
     {
         public Guid Id { get; set; }
         public decimal Balance { get; set; }
-        public ICollection<TransactionEntity> Transactions { get; set; } = null!;
+        public ICollection<TransactionEntity> Transactions { get; private set; } = new List<TransactionEntity>();
+        public byte[] RowVersion { get; set; } = null!;
+        public DateTime UpdatedAt { get; set; }
     }
 }

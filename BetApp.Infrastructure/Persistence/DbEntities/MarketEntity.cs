@@ -18,5 +18,7 @@ namespace BetApp.Infrastructure.Persistence.DbEntities
         public bool IsActive { get; set; } = true;
         public decimal? BoostedOdds { get; set; }
         public decimal? MaxStake { get; set; }
+
+        public ICollection<BetItemEntity> BetItems { get; set; } = new List<BetItemEntity>();
     }
 }

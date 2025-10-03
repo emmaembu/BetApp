@@ -10,10 +10,24 @@ namespace BetApp.Domain.Entities
     public class BetItem
     {
         public Guid Id { get; set; }
+        public Guid BetSlipId { get; set; }
         public Guid MarketId { get; set; }
         public Guid MatchId { get; set; }
         public decimal OddsAtPlacement { get; set; }
         public BetType Type { get; set; }       
         public decimal Stake { get; set; }
+
+        private BetItem() { }
+
+        public BetItem(Guid betSlipId, Guid marketId, Guid matchId, decimal oddsAtPlacement, BetType type, decimal stake)
+        {
+            Id = Guid.NewGuid();
+            BetSlipId = betSlipId;
+            MarketId = marketId;
+            MatchId = matchId;
+            OddsAtPlacement = oddsAtPlacement;
+            Type = type;
+            stake = Stake;
+        }
     }
 }

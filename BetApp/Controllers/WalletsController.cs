@@ -1,4 +1,5 @@
-﻿using BetApp.Application.Interfaces;
+﻿using BetApp.Application.DTOs;
+using BetApp.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BetApp.Controllers
@@ -21,10 +22,10 @@ namespace BetApp.Controllers
             return Ok(wallet);
         }
 
-        [HttpPost("{id}/deposit")]
-        public async Task<IActionResult> Deposit(Guid id, [FromBody] decimal amount)
+        [HttpPost("deposit")]
+        public async Task<IActionResult> Deposit([FromBody] WalletDepositDto request)
         {
-            await _walletService.DepositAsync(id, amount);
+            await _walletService.DepositAsync(request);
 
             return Ok(new { Message = "Deposit successful" });
         }

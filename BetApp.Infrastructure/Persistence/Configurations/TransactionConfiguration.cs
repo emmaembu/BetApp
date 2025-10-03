@@ -15,40 +15,20 @@ namespace BetApp.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("Transactions");
             builder.HasKey(t => t.Id);
+            builder.Property(t => t.Id).ValueGeneratedOnAdd();
 
-            builder.Property(t => t.Id)
-                   .HasDefaultValueSql("NEWSEQUENTIALID()")
-                   .ValueGeneratedNever();
+            builder.Property(t => t.Amount).HasColumnType("decimal(18,4)").IsRequired();
+            builder.Property(t => t.BalanceBefore).HasColumnType("decimal(18,4)").IsRequired();
+            builder.Property(t => t.BalanceAfter).HasColumnType("decimal(18,4)").IsRequired();
+            builder.Property(t => t.TransactionType).HasConversion<int>().IsRequired();
+            builder.Property(t => t.CreatedAt).IsRequired();
+            builder.Property(t => t.Description).HasMaxLength(500).IsRequired(false);
 
-            builder.Property(t => t.WalletId)
-                   .IsRequired();
-
-            builder.Property(t => t.Amount)
-                   .HasColumnType("decimal(18,4)")
-                   .IsRequired();
-
-            builder.Property(t => t.BalanceBefore)
-                   .HasColumnType("decimal(18,4)")
-                   .IsRequired();
-
-            builder.Property(t => t.BalanceAfter)
-                   .HasColumnType("decimal(18,4)")
-                   .IsRequired();
-
-            builder.Property(t => t.Timestamp)
-                   .IsRequired();
-
-            builder.Property(t => t.Description)
-                   .HasMaxLength(500)
-                   .IsRequired(false);
 
             builder.HasOne(t => t.Wallet)
                    .WithMany(w => w.Transactions)
-                   .HasForeignKey(t => t.WalletId)
-                   .OnDelete(DeleteBehavior.Cascade);
-
-            // Optional: index by WalletId + Timestamp for fast lookups
-            builder.HasIndex(t => new { t.WalletId, t.Timestamp });
+                   .HasForeignKey(t => t.WalletId)      // FK
+                   .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

@@ -34,7 +34,7 @@ namespace BetApp.Application.Validators
                 if(market.IsTopOffer && betSlip.Items.Any(i=>i.MarketId != item.MarketId))
                     throw new InvalidOperationException("TopOffer cannot be combined with other markets");
 
-                if(Enum.IsDefined(typeof(BetType),item.Type))//(!market.Type.Contains(item.Type))
+                if(!Enum.IsDefined(typeof(BetType),item.Type))//(!market.Type.Contains(item.Type))
                     throw new InvalidOperationException("Invalid bet type for this market!");
             }
         }

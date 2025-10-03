@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BetApp.Application.DTOs;
 using BetApp.Application.Interfaces;
 using BetApp.Domain.Entities;
 using System;
@@ -18,12 +19,14 @@ namespace BetApp.Application.Services
             _walletRepository = walletRepository;
         }
 
-        public async Task<Wallet> CreateWalletAsync(decimal balance)
+        public async Task<Wallet> CreateWalletAsync(decimal initialBalance)
         {
-            var wallet = new Wallet
+            var wallet = new Wallet(Guid.NewGuid());
+
+            if(initialBalance > 0)
             {
-                Balance = balance
-            };
+                wallet.Deposit(initialBalance, "Initial deposit");
+            }
 
             await _walletRepository.AddAsync(wallet);
 
@@ -32,16 +35,16 @@ namespace BetApp.Application.Services
             return wallet;
         }
 
-        public async Task DepositAsync(Guid id, decimal amount)
+        public async Task DepositAsync(WalletDepositDto request)
         {
-            var wallet = await _walletRepository.GetByIdAsync(id);
+            var wallet= await _walletRepository.GetByIdAsync(request.Id);
 
             if (wallet == null)
             {
                 throw new InvalidOperationException("Wallet not found");
             }
 
-            wallet.Deposit(amount);
+            wallet.Deposit(request.Amount, request.Description);
 
             await _walletRepository.UpdateAsync(wallet);
         }

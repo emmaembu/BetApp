@@ -12,10 +12,16 @@ namespace BetApp.Infrastructure.Persistence.DbEntities
     {
         public Guid Id { get; set; }
         public Guid BetSlipId { get; set; }
-        public BetSlipEntity BetSlip { get; set; }
         public Guid MarketId { get; set; }
-        public MarketEntity Market { get; set; } = null!;
+        public Guid MatchId { get; set; }
         public decimal OddsAtPlacement { get; set; }
+        public decimal Stake { get; set; }
         public int BetType { get; set; }
+
+        public BetSlipEntity BetSlipEntity { get; set; } = null!;
+        public MarketEntity MarketEntity { get; set; } = null!;
+
+        public decimal Payout { get; set; }
+
     }
 }

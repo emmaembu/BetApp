@@ -30,13 +30,13 @@ namespace BetApp.Infrastructure.Repositories
 
         public async Task<IEnumerable<BetSlip>> GetByWalletIdAsync(Guid id)
         {
-            var bets =  await _appDbContext.BetSlips.Include(bs => bs.BetItems).ThenInclude(bi => bi.Market).Where(bs => bs.WalletId == id).ToListAsync();
+            var bets =  await _appDbContext.BetSlips.Include(bs => bs.BetItems).ThenInclude(bi => bi.MarketEntity).Where(bs => bs.WalletId == id).ToListAsync();
             return bets.Select(e => e.ToDomain()).ToList();
         }
 
         public async Task<BetSlip?> GetByIdAsync(Guid id)
         {
-            var entity = await _appDbContext.BetSlips.Include(b=>b.BetItems).ThenInclude(i=>i.Market).FirstOrDefaultAsync(b=>b.Id == id);
+            var entity = await _appDbContext.BetSlips.Include(b=>b.BetItems).ThenInclude(i=>i.MarketEntity).FirstOrDefaultAsync(b=>b.Id == id);
             return entity?.ToDomain();
         }
     }

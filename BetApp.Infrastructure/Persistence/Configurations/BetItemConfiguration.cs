@@ -36,12 +36,12 @@ namespace BetApp.Infrastructure.Persistence.Configurations
                .HasConversion<int>()
                .IsRequired();
 
-        builder.HasOne(bi => bi.BetSlip)
+        builder.HasOne(bi => bi.BetSlipEntity)
                .WithMany(bs => bs.BetItems)
                .HasForeignKey(bi => bi.BetSlipId)
                .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(bi => bi.Market)
+        builder.HasOne(bi => bi.MarketEntity)
                .WithMany()
                .HasForeignKey(bi => bi.MarketId)
                .OnDelete(DeleteBehavior.Restrict);

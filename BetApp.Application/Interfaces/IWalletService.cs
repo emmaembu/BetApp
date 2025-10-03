@@ -1,4 +1,5 @@
-﻿using BetApp.Domain.Entities;
+﻿using BetApp.Application.DTOs;
+using BetApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace BetApp.Application.Interfaces
     {
         Task DeductForBetAsync(Guid id, decimal amount, string betDescription);
 
-        Task DepositAsync(Guid id, decimal amount);
+        Task DepositAsync(WalletDepositDto request);
 
         Task<Wallet> GetByIdAsync(Guid id);
 

@@ -2,6 +2,7 @@
 using BetApp.Domain.Enums;
 using BetApp.Infrastructure.Persistence;
 using BetApp.Infrastructure.Persistence.DbEntities;
+using BetApp.Infrastructure.Persistence.Mappings;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -19,27 +20,32 @@ namespace BetApp.Infrastructure.Seed
 
             await db.Database.MigrateAsync();
 
-            // Wallet + initial transaction
+            // Walle
             if (!await db.Wallets.AnyAsync())
             {
-                var wallet = new WalletEntity
-                {
-                    Id = Guid.NewGuid(),
-                    Balance = 100.00m
-                };
-                db.Wallets.Add(wallet);
+                
+                var wallet = new Wallet(Guid.NewGuid()); 
+                wallet.Deposit(1000M, "Initial Deposit");
+                wallet.Deposit(500M, "Second Deposit");
+                var dbWallet = wallet.ToDbEntity();
+                db.Wallets.Add(dbWallet);
 
-                var tx = new TransactionEntity
+                await db.SaveChangesAsync();
+           
+
+                //Transaction
+                if(!await db.Transactions.AnyAsync())
                 {
-                    Id = Guid.NewGuid(),
-                    WalletId = wallet.Id,
-                    Amount = 100.00m,
-                    BalanceBefore = 0m,
-                    BalanceAfter = 100.00m,
-                    Timestamp = DateTime.UtcNow,
-                    Description = "Initial seed deposit"
-                };
-                db.Transactions.Add(tx);
+                    var dbTransactions = wallet.Transactions.Select(t => 
+                    {
+                        var dbT = t.ToDbEntity();
+                        dbT.WalletId = dbWallet.Id;
+                        return dbT;
+                    }).ToList();
+                    db.Transactions.AddRange(dbTransactions);
+
+                    await db.SaveChangesAsync();
+                }
             }
 
             // Matches & Markets
@@ -65,6 +71,7 @@ namespace BetApp.Infrastructure.Seed
                 };
 
                 db.Matches.AddRange(match1, match2);
+                
 
                 db.Markets.AddRange(
                     new MarketEntity
@@ -97,9 +104,9 @@ namespace BetApp.Infrastructure.Seed
                         IsActive = false
                     }
                 );
-            }
 
-            await db.SaveChangesAsync();
+                await db.SaveChangesAsync();
+            }
         }
     }
 }

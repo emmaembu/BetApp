@@ -25,11 +25,12 @@ namespace BetApp.Application.Mappers
         public static Wallet ToDomain(this WalletDto dto)
         {
             if (dto == null) return null;
-            return new Wallet
-            {
-                Id = dto.Id,
-                Balance = dto.Balance
-            };
+            var wallet = (Wallet)Activator.CreateInstance(typeof(Wallet), nonPublic: true)!;
+
+            typeof(Wallet).GetProperty("Id")!.SetValue(wallet, dto.Id);
+            typeof(Wallet).GetProperty("Balance")!.SetValue(wallet, dto.Balance);
+
+            return wallet;
         }
 
         // BetSlip
@@ -46,26 +47,21 @@ namespace BetApp.Application.Mappers
 
         public static BetSlip ToDomain(this BetSlipRequestDto dto, Guid betSlipId)
         {
-            var betSlip =  new BetSlip
-            {
-                Id = betSlipId,
-                WalletId = dto.WalletId,
-                Items = dto.Items?.Select(i => i.ToDomain()).ToList() ?? new List<BetItem>()
-            };
-
-            decimal itemStake = dto.TotalStake/dto.Items.Count;
-
-            foreach(var item in dto.Items)
-            {
-                betSlip.Items.Add(new BetItem
-                {
-                    Id = Guid.NewGuid(),
-                    MatchId = item.MatchId, 
-                    MarketId = item.MarketId,
-                    Type = item.BetType,
-                    OddsAtPlacement = item.OddsAtPlacement
-                });
-            }
+            if (dto == null) return null;
+            var betItems = dto.Items.Select(bi => new BetItem
+                (
+                   betSlipId: betSlipId,
+                   marketId: bi.MarketId,
+                   matchId: bi.MatchId,
+                   oddsAtPlacement: bi.OddsAtPlacement,
+                   type: bi.BetType,
+                   stake: bi.OddsAtPlacement // not good, check this
+                )).ToList();
+            var betSlip = new BetSlip(
+                walletId: dto.WalletId,
+                items: betItems,
+                payout: 0
+                );
 
             return betSlip;
         }
@@ -82,18 +78,18 @@ namespace BetApp.Application.Mappers
             };
         }
 
-        public static BetItem ToDomain(this BetItemDto dto)
-        {
-            if (dto == null) return null;
-            return new BetItem
-            {
-                Id = Guid.NewGuid(),
-                MatchId = dto.MatchId,
-                MarketId = dto.MarketId,
-                OddsAtPlacement = dto.OddsAtPlacement,
-                Type = dto.BetType
-            };
-        }
+        //public static BetItem ToDomain(this BetItemDto dto)
+        //{
+        //    if (dto == null) return null;
+        //    return new BetItem
+        //    (
+        //        matchId : dto.MatchId,
+        //        marketId : dto.MarketId,
+        //        oddsAtPlacement : dto.OddsAtPlacement,
+        //        stake: dto.OddsAtPlacement,
+        //        type : dto.BetType
+        //    );
+        //}
 
 
         // Mat

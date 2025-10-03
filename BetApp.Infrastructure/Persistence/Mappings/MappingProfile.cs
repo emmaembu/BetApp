@@ -3,6 +3,7 @@ using BetApp.Domain.Entities;
 using BetApp.Domain.Enums;
 using System.Linq;
 using BetApp.Domain.Events;
+using Microsoft.IdentityModel.Tokens;
 
 namespace BetApp.Infrastructure.Persistence.Mappings
 {
@@ -65,12 +66,31 @@ namespace BetApp.Infrastructure.Persistence.Mappings
             {
                 if (entity == null) return null!;
 
-                return new Wallet
+                var wallet = new Wallet(entity.Id){ };
+
+                typeof(Wallet).GetProperty("Balance")!.SetValue(wallet, entity.Balance);
+                typeof(Wallet).GetProperty("UpdatedAt")!.SetValue(wallet, entity.UpdatedAt);
+                typeof(Wallet).GetProperty("RowVersion")!.SetValue(wallet, entity.RowVersion);
+                foreach (var tEntity in entity.Transactions)
                 {
-                    Id = entity.Id,
-                    Balance = entity.Balance,
-                    Transactions = entity.Transactions?.Select(t => t.ToDomain()).ToList() ?? new List<Transaction>()
-                };
+                    var transaction = tEntity.ToDomain();
+                    var transactionsField = typeof(Wallet).GetField("_transactions", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+                    if (transactionsField == null)
+                        throw new InvalidOperationException("_transactions field not found");
+
+                    var listObj = transactionsField.GetValue(wallet);
+
+                    if (listObj is List<Transaction> list)
+                    {
+                        list.Add(transaction);
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("_transactions field is not List<Transaction>");
+                    }
+                }
+               return wallet;
             }
 
             // TransactionEntity -> Transaction (Domain)
@@ -80,43 +100,54 @@ namespace BetApp.Infrastructure.Persistence.Mappings
             {
                 if (entity == null) return null!;
 
-                return new Transaction
-                {
-                    Id = entity.Id,
-                    WalletId = entity.WalletId,
-                    Amount = entity.Amount,
-                    BalanceBefore = entity.BalanceBefore,
-                    BalanceAfter = entity.BalanceAfter,
-                    Timestamp = entity.Timestamp,
-                    Description = entity.Description
-                };
+                var transaction = (Transaction)Activator.CreateInstance(typeof(Transaction), true)!;
+
+                typeof(Transaction).GetProperty("Id")!.SetValue(transaction, entity.Id);
+                typeof(Transaction).GetProperty("WalletId")!.SetValue(transaction, entity.WalletId);
+                typeof(Transaction).GetProperty("Amount")!.SetValue(transaction, entity.Amount);
+                typeof(Transaction).GetProperty("BalanceBefore")!.SetValue(transaction, entity.BalanceBefore);
+                typeof(Transaction).GetProperty("BalanceAfter")!.SetValue(transaction, entity.BalanceAfter);
+                typeof(Transaction).GetProperty("TransactionType")!.SetValue(transaction, entity.TransactionType);
+                typeof(Transaction).GetProperty("Description")!.SetValue(transaction, entity.Description);
+                typeof(Transaction).GetProperty("CreatedAt")!.SetValue(transaction, entity.CreatedAt);
+                return transaction;
             }
+            private const decimal DefaultFeePercent = 0.05M;
             public static BetSlip ToDomain(this BetSlipEntity entity)
             {
+                
                 if (entity == null) return null!;
 
+                var betItems = entity.BetItems?.Select(bi => bi.ToDomain()).ToList() ?? new List<BetItem>();
+                var totalStake = betItems.Sum(bi => bi.Stake);
+                var feePercent = DefaultFeePercent;
+                var feeAmount = totalStake * feePercent;
+                var netStake = totalStake - feeAmount;
+
                 return new BetSlip
-                {
-                    Id = entity.Id,
-                    WalletId = (Guid)entity.WalletId,
-                    Items = entity.BetItems?.Select(i => i.ToDomain()).ToList() ?? new List<BetItem>()
-                };
+                (
+                    (Guid)entity.WalletId!, 
+                    betItems.AsReadOnly(),
+                    entity.Payout
+            );
             }
 
             // BetItemEntity -> BetItem (Domain)
             public static BetItem ToDomain(this BetItemEntity entity)
             {
+
                 if (entity == null) return null!;
 
-                return new BetItem
-                {
-                    Id = entity.Id,
-                   // BetSlipId = entity.BetSlipId,
-                    MarketId = entity.MarketId,
-                    OddsAtPlacement = entity.OddsAtPlacement,
-                    Type = (BetType)entity.BetType
-                };
-            }
+            return new BetItem
+            (
+                entity.BetSlipId,
+                entity.MarketId,
+                entity.MatchId,
+                entity.OddsAtPlacement,
+                (BetType)entity.BetType,
+                entity.Stake
+            );
+        }
 
             // Domain -> DbEntity
             public static MatchEntity ToDbEntity(this Match domain)
@@ -152,27 +183,27 @@ namespace BetApp.Infrastructure.Persistence.Mappings
             {
                 if (domain == null) return null!;
 
-                return new WalletEntity
-                {
-                    Id = domain.Id,
-                    Balance = domain.Balance,
-                    Transactions = domain.Transactions?.Cast<Transaction>().Select(t => t.ToDbEntity()).ToList() ?? new List<TransactionEntity>()
-                };
+            return new WalletEntity
+            {
+                Id = domain.Id,
+                Balance = domain.Balance,
+                UpdatedAt = domain.UpdatedAt
+                // Transactions = domain.Transactions?.Cast<Transaction>().Select(t => t.ToDbEntity()).ToList() ?? new List<TransactionEntity>()
+            };
             }
 
             public static TransactionEntity ToDbEntity(this Transaction domain)
             {
                 if (domain == null) return null!;
 
-                return new TransactionEntity
-                {
-                    Id = domain.Id,
-                    WalletId = domain.WalletId,
+                return new TransactionEntity 
+                { 
                     Amount = domain.Amount,
                     BalanceBefore = domain.BalanceBefore,
                     BalanceAfter = domain.BalanceAfter,
-                    Timestamp = domain.Timestamp,
-                    Description = domain.Description
+                    CreatedAt = domain.CreatedAt,
+                    Description = domain.Description,
+                    TransactionType = (int)domain.TransactionType
                 };
             }
 
