@@ -13,13 +13,12 @@ namespace BetApp.Infrastructure.Persistence.DbEntities
         public Guid Id { get; set; }
         public Guid? WalletId { get; set; }
         public WalletEntity Wallet { get; set; } = null!;
-        public decimal Stake { get; set; }
-        public decimal TotalOdds { get; set; }
-        public decimal FeePercent { get; set; } 
-        public decimal PotentialPayout { get; set; }
+        public decimal NetStake { get; set; }
+        public decimal TotalStake { get; set; }
+        public decimal FeePercent { get; set; }
+        public decimal FeeAmount { get; set; }
         public DateTime PlacedAt { get; set; }
         public decimal Payout { get; set; }
         public ICollection<BetItemEntity> BetItems { get; set; } = null!;
-        public bool ContainsTopOffer => BetItems.Any(i=> i.MarketEntity.IsTopOffer);
     }
 }

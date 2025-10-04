@@ -11,7 +11,5 @@ namespace BetApp.Application.DTOs
         public Guid WalletId { get; set; }
 
         public List<BetItemDto> Items { get; set; } = new();
-
-        public decimal TotalStake { get; set; }
     }
 }

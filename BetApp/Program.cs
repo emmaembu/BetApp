@@ -41,7 +41,6 @@ builder.Services.AddSwaggerGen(
                            Version = "v1"
                        }
                    );
-        //c.AddServer(new Microsoft.OpenApi.Models.OpenApiServer { Url = "https://localhost:7126/" });
     });
 
 var app = builder.Build();

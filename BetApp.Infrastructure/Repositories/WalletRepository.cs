@@ -43,36 +43,28 @@ namespace BetApp.Infrastructure.Repositories
 
         public async Task UpdateAsync(Wallet wallet)
         {
-            // Pobriši eventualne null vrijednosti
+
             if (wallet is null) throw new ArgumentNullException(nameof(wallet));
 
-            // Dohvati praćeni WalletEntity iz DB-a (s RowVersion)
             var walletEntity = await _appDbContext.Wallets
                 .FirstOrDefaultAsync(w => w.Id == wallet.Id);
 
             if (walletEntity == null)
                 throw new InvalidOperationException("Wallet not found in database.");
 
-            // Provjera RowVersion (ako domain nosi rowVersion) - opcionalno:
-            // Ako tvoj domain Wallet sadrži RowVersion (byte[]), možeš provjeriti ovdje:
-            // if (!wallet.RowVersion.SequenceEqual(walletEntity.RowVersion)) throw new DbUpdateConcurrencyException(...);
-
-            // Ažuriraj polja na postojećoj entiteti (ne Attach, ne Replace)
             walletEntity.Balance = wallet.Balance;
             walletEntity.UpdatedAt = wallet.UpdatedAt;
-
-            // Ako koristiš concurrency token (RowVersion), EF će automatski uključiti u UPDATE
-            // Dodaj novu transakciju (mapiraj domain Transaction -> TransactionEntity)
+           
             var lastTransaction = wallet.Transactions?.LastOrDefault();
             if (lastTransaction != null)
             {
                 var transactionEntity = new TransactionEntity
                 {
-                    WalletId = walletEntity.Id, // koristimo postojeci Id iz baze
+                    WalletId = walletEntity.Id, // 
                     Amount = lastTransaction.Amount,
                     BalanceBefore = lastTransaction.BalanceBefore,
                     BalanceAfter = lastTransaction.BalanceAfter,
-                    TransactionType = (int)lastTransaction.TransactionType, // prilagodi ako koristiš enum
+                    TransactionType = (int)lastTransaction.TransactionType, 
                     CreatedAt = lastTransaction.CreatedAt,
                     Description = lastTransaction.Description
                 };
@@ -80,14 +72,13 @@ namespace BetApp.Infrastructure.Repositories
                 _appDbContext.Transactions.Add(transactionEntity);
             }
 
-            // Spremi u transakciji i hvataj concurrency
+            // save in database
             try
             {
                 await _appDbContext.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException ex)
             {
-                // možeš logirati i baciti specifičnu iznimku
                 throw new InvalidOperationException("Concurrency conflict while updating wallet. Please retry.", ex);
             }
         }

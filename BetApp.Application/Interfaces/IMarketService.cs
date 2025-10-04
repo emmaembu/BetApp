@@ -14,5 +14,7 @@ namespace BetApp.Application.Interfaces
         Task<IEnumerable<MarketDto>> GetValidMarketsForMatchAsync(Guid matchId);
 
         Task<Guid> AddMarketToMatchAsync(MarketDto marketDto);
+
+        Task<bool> IsTopOfferAsync(Guid marketId);
     }
 }

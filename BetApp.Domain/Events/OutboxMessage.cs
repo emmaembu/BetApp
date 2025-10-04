@@ -13,7 +13,7 @@ namespace BetApp.Domain.Events
 
         public Guid AggregateId { get; set; }
         public DateTime OccuredOn { get; set; } = DateTime.UtcNow;
-        public DateTime ProcessedOn { get; set; } 
+        public DateTime? ProcessedOn { get; set; } 
         public string Type { get; set; } = string.Empty;
         public string Payload { get; set; } = string.Empty;
 

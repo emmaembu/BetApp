@@ -5,6 +5,7 @@ using BetApp.Domain.Entities;
 using BetApp.Infrastructure.Persistence;
 using BetApp.Infrastructure.Persistence.Mappings;
 using Microsoft.EntityFrameworkCore;
+using System.ComponentModel;
 
 namespace BetApp.Infrastructure.Repositories
 {
@@ -43,7 +44,7 @@ namespace BetApp.Infrastructure.Repositories
 
         public async Task AddAsync(Market market)
         {
-            // kvota mora biti  >= 1.0
+            // kvota must be >= 1.0
             if (market.Odds < 1.0M)
                 throw new ArgumentException("Market odds must be greater or equal to 1.0");
             var marketEntity = market.ToDbEntity();
@@ -52,6 +53,12 @@ namespace BetApp.Infrastructure.Repositories
         public async Task SaveChangesAsync()
         {
             await _appDbContext.SaveChangesAsync();
+        }
+
+        public async Task<bool> IsTopOffer(Guid marketId)
+        {
+            var market = await _appDbContext.Markets.FindAsync(marketId);
+            return market != null && market.IsTopOffer;
         }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using BetApp.Application.DTOs;
 using BetApp.Application.Interfaces;
 using BetApp.Application.Mappers;
+using BetApp.Application.Validators;
 using BetApp.Domain.Entities;
+using BetApp.Domain.Enums;
 using BetApp.Domain.Events;
 using StackifyLib.Utils;
 using System;
@@ -17,26 +19,38 @@ namespace BetApp.Application.Services
     {
         private readonly IBetRepository _betRepository;
         private readonly IOutboxRepository _outboxRepository;
+        private readonly IMarketRepository _marketRepository;
         private readonly IBetSlipValidator _betSlipValidator;
-       
-        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository, IBetSlipValidator betSlipValidator)
+        private readonly IWalletRepository _walletRepository;
+
+        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository, IMarketRepository marketRepository, IBetSlipValidator betSlipValidator, IWalletRepository walletRepository)
         {
             _betRepository = betRepository;
             _outboxRepository = outboxRepository;
+            _marketRepository = marketRepository;
             _betSlipValidator = betSlipValidator;
+            _walletRepository = walletRepository;
         }
 
         public async Task<Guid> PlaceBetAsync(BetSlipRequestDto betSlipDto)
         {
+            // get only wallet data
+            var wallet = await _walletRepository.GetByIdAsync(betSlipDto.WalletId);
+            if (wallet == null)
+                throw new Exception("Wallet not found");
 
-            var betSlipId = SequentialGuid.NewGuid();
-            var betSlip = betSlipDto.ToDomain(betSlipId);
+            // validate business rules
+            await _betSlipValidator.ValidateAsync(betSlipDto);
 
-            await _betSlipValidator.ValidateAsync(betSlip);// insert into try catch
-
+            // top offers etc.
+            var betSlip = betSlipDto.ToDomain();
+            await CheckBetSlipAsync(betSlip);
+            if (wallet.Balance < betSlip.TotalStake)
+                throw new Exception("Insufficient balance!");
+                    
             await _betRepository.AddAsync(betSlip);
 
-            var payload = JsonSerializer.Serialize(betSlip);
+            var payload = JsonSerializer.Serialize(betSlipDto);
             //add outbox message
             var outboxMessage = new OutboxMessage
             (type: "BetPlaced",
@@ -55,19 +69,29 @@ namespace BetApp.Application.Services
             return betSlips.Select(e => e.ToDto()).ToList();
         }
 
-        //private void ValidateBetSlip(BetSlip betSlip)
-        //{
-        //    if (betSlip.Items.Any(i => !i.Market!.IsActive || i.Market.Odds < 1.0M))
-        //        throw new InvalidOperationException("Invalid market.");
+        private async Task CheckBetSlipAsync(BetSlip betSlip)
+        {         
+            var marketIds = betSlip.BetItems.Select(i => i.MarketId).ToList();
 
-        //    if (betSlip.ContainsTopOffer)
-        //    {
-        //        if (betSlip.Items.Count(i => i.Market!.IsTopOffer) > 1)
-        //            throw new InvalidOperationException("Cannot combine multiple Top Offers");
+            var markets = await _marketRepository.GetByIdsAsync(marketIds);
 
-        //        if (betSlip.Items.Any(i => !i.Market!.IsTopOffer))
-        //            throw new InvalidOperationException("Cannot mix Top Offer with regular market");
-        //    }
-        //}
+            foreach (var item in betSlip.BetItems)
+            {
+                var market = markets.FirstOrDefault(m => m.Id == item.MarketId);
+
+                if (market == null || !market.IsActive)
+                    throw new InvalidOperationException("Market is invalid or inactive!");
+
+                if(market.IsTopOffer)
+                {
+                    item.MarkAsTopOffer();
+                }
+
+                if (market.IsTopOffer && betSlip.BetItems.Any(i => i.MarketId != item.MarketId))
+                    throw new InvalidOperationException("TopOffer cannot be combined with other markets");
+
+            }
+
+        }
     }
 }

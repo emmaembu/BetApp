@@ -1,4 +1,6 @@
+using BetApp.Application.DTOs;
 using BetApp.Application.Interfaces;
+using BetApp.Application.Mappers;
 using BetApp.Domain.Entities;
 using BetApp.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -50,7 +52,6 @@ namespace BetApp.Worker
                 using var scope = _serviceProvider.CreateScope();
                 var outboxRepository = scope.ServiceProvider.GetRequiredService<IOutboxRepository>();
                 var walletService = scope.ServiceProvider.GetRequiredService<IWalletService>();
-                var betRepository = scope.ServiceProvider.GetRequiredService<IBetRepository>();
 
                 var messages = await outboxRepository.GetUnprocessedAsync();
 
@@ -61,13 +62,18 @@ namespace BetApp.Worker
 
                         if (msg.Type == "BetPlaced")
                         {
-                            var bet = await betRepository.GetByIdAsync(msg.Id);
 
-                            var betSlip = JsonSerializer.Deserialize<BetSlip>(msg.Payload);
+                            var betRequest = JsonSerializer.Deserialize<BetSlipRequestDto>(msg.Payload);
 
-                            await walletService.DeductForBetAsync(betSlip!.WalletId, betSlip.TotalStake, "Bet Placed");
+                            if (betRequest == null)
+                                continue;
+                            var wallet = await walletService.GetByIdAsync(betRequest.WalletId);
 
-                            _logger.LogInformation("Processed BetPlaces message {BetId}", bet!.Id);
+                            var betSlip = betRequest.ToDomain();
+
+                            await walletService.DeductForBetAsync(betRequest!.WalletId, betSlip.TotalStake, "Bet Placed");
+
+                            _logger.LogInformation("Processed BetPlaces message {BetId}", betSlip!.Id);
 
                         }
                         _logger.LogInformation("Processing message {MessageId}", msg.Id);

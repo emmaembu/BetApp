@@ -1,4 +1,5 @@
-﻿using BetApp.Application.Interfaces;
+﻿using BetApp.Application.DTOs;
+using BetApp.Application.Interfaces;
 using BetApp.Domain.Entities;
 using BetApp.Domain.Enums;
 using System;
@@ -11,31 +12,25 @@ namespace BetApp.Application.Validators
 {
     public class BetSlipValidator : IBetSlipValidator
     {
-        private readonly IMarketRepository _marketRepository;
-
-        public BetSlipValidator(IMarketRepository marketRepository)
+        public BetSlipValidator()
         {
-            _marketRepository = marketRepository;
         }
 
-        public async Task ValidateAsync(BetSlip betSlip)
+        public async Task ValidateAsync(BetSlipRequestDto betSlipDto)
         {
-            var marketIds = betSlip.Items.Select(i => i.MarketId).ToList();
+            if (betSlipDto.WalletId == Guid.Empty)
+                throw new ArgumentException("WalletId cannot be empty");
 
-            var markets = await _marketRepository.GetByIdsAsync(marketIds);
+            if (betSlipDto.Items == null || !betSlipDto.Items.Any())
+                throw new ArgumentException("BetSlip must contain at least one BetItem");
 
-            foreach (var item in betSlip.Items)
+            foreach(var item in betSlipDto.Items)
             {
-                var market = markets.FirstOrDefault(m => m.Id == item.MarketId);
+                if (item.Stake <= 0)
+                    throw new ArgumentException("Stake must be greater than zero");
 
-                if (market == null || !market.IsActive)
-                    throw new InvalidOperationException("Market is invalid or inactive!");
-
-                if(market.IsTopOffer && betSlip.Items.Any(i=>i.MarketId != item.MarketId))
-                    throw new InvalidOperationException("TopOffer cannot be combined with other markets");
-
-                if(!Enum.IsDefined(typeof(BetType),item.Type))//(!market.Type.Contains(item.Type))
-                    throw new InvalidOperationException("Invalid bet type for this market!");
+                if (!Enum.IsDefined(typeof(BetType), item.BetType))
+                    throw new ArgumentException("Invalid betType");
             }
         }
     }

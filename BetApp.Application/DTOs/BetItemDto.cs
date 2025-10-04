@@ -16,5 +16,7 @@ namespace BetApp.Application.DTOs
         public decimal OddsAtPlacement { get; set; }
 
         public BetType BetType { get; set; } 
+
+        public decimal Stake { get; set; }
     }
 }

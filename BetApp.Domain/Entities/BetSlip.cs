@@ -11,34 +11,39 @@ namespace BetApp.Domain.Entities
 {
     public class BetSlip
     {
-        public Guid Id { get; set; } 
+        public Guid Id { get; set; }
         public Guid WalletId { get; set; }
-        public decimal FeePercent { get; set; } = 0.05m; // 5%
-        public decimal FeeAmount => TotalStake*FeePercent;
-        public decimal NetStake => TotalStake - FeePercent;
-        public DateTime PlacedAt { get; set; } = DateTime.UtcNow;
+        public decimal FeePercent { get; private set; } = 0.05m; // 5%
+        public decimal FeeAmount { get; private set; } //=> TotalStake*FeePercent;
+        public decimal NetStake { get; private set; }//=> TotalStake - FeePercent;
+        public DateTime PlacedAt { get; private set; } //{ get; set; } = DateTime.UtcNow;
 
-        //private readonly List<BetItem> _betItems= new();
-        public IReadOnlyCollection<BetItem> Items { get; private set; }// => _betItems.AsReadOnly();
-        public decimal TotalStake => Items.Sum(i => i.Stake);
+        private readonly List<BetItem> _betItems = new();
+        public IReadOnlyCollection<BetItem> BetItems => _betItems.AsReadOnly(); //{ get; private set; }
+
+        public decimal TotalStake { get; private set; }//=> Items.Sum(i => i.Stake);
         public decimal Payout { get; private set; }
 
-        //private BetSlip() { }
+        private BetSlip() { }
 
-        public BetSlip(Guid walletId, IReadOnlyCollection<BetItem> items, decimal payout)
+        public BetSlip(Guid walletId, IEnumerable<BetItem> items)
         {
             Id = Guid.NewGuid();
             WalletId = walletId;
-            Items = items ?? new List<BetItem>().AsReadOnly();
-            Payout = payout;
-        }
+            PlacedAt = DateTime.UtcNow;
+            _betItems.AddRange(items);
+            TotalStake = _betItems.Sum(i => i.Stake);
+            FeeAmount = TotalStake * FeePercent;
+            NetStake = TotalStake - FeeAmount;
+            Payout = _betItems.Sum(i => i.Stake * i.OddsAtPlacement);
 
-        public void AddBetItem(BetItem item)
-        {
-            var items = Items.ToList();
-            items.Add(item);
-            Items = items.AsReadOnly();
-        }
+            //public void AddBetItem(BetItem item)
+            //{
+            //    var items = Items.ToList();
+            //    items.Add(item);
+            //    Items = items.AsReadOnly();
+            //}
 
+        }
     }
 }

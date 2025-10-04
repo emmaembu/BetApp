@@ -1,4 +1,5 @@
-﻿using BetApp.Domain.Entities;
+﻿using BetApp.Application.DTOs;
+using BetApp.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,6 @@ namespace BetApp.Application.Interfaces
 {
     public interface IBetSlipValidator
     {
-        Task ValidateAsync(BetSlip betSlip);
+        Task ValidateAsync(BetSlipRequestDto betSlip);
     }
 }

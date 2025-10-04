@@ -67,5 +67,11 @@ namespace BetApp.Application.Services
             var matchMarkets = markets.Where(m => m.IsActive && m.Odds >= 1.0m);
             return matchMarkets.Select(e=>e.ToDto()).ToList();  
         }
+
+        //get is top offer by market id 
+        public async Task<bool> IsTopOfferAsync(Guid marketId)
+        {
+            return await _marketRepository.IsTopOffer(marketId);
+        }
     }
 }

@@ -21,7 +21,5 @@ namespace BetApp.Infrastructure.Persistence.DbEntities
         public BetSlipEntity BetSlipEntity { get; set; } = null!;
         public MarketEntity MarketEntity { get; set; } = null!;
 
-        public decimal Payout { get; set; }
-
     }
 }

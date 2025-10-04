@@ -18,10 +18,10 @@ namespace BetApp.Infrastructure.Seed
         public static async Task EnsureSeedDataAsync(AppDbContext db)
         {
 
-            await db.Database.MigrateAsync();
+            var created = await db.Database.EnsureCreatedAsync();
 
             // Walle
-            if (!await db.Wallets.AnyAsync())
+            if (created || !await db.Wallets.AnyAsync())
             {
                 
                 var wallet = new Wallet(Guid.NewGuid()); 

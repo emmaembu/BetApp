@@ -7,27 +7,6 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace BetApp.Infrastructure.Persistence.Mappings
 {
-    //public class MappingProfile : Profile
-    //{
-    //    public MappingProfile() 
-    //    {
-    //        CreateMap<MatchEntity, Match>()
-    //            .ForMember(dest => dest.Markets, opt => opt.MapFrom(src => src.Markets));
-    //        CreateMap<MarketEntity, Market>()
-    //            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (BetType)src.BetType))
-    //            .ForMember(dest => dest.Match, opt => opt.MapFrom(src => src.Match));
-    //        CreateMap<WalletEntity, Wallet>()
-    //            .ForMember(dest => dest.Transactions, opt => opt.MapFrom(src => src.Transactions));
-    //        CreateMap<TransactionEntity, Transaction>();
-    //        CreateMap<BetItemEntity, BetItem>()
-    //            .ForMember(dest => dest.Type, opt => opt.MapFrom(src => (BetType) src.BetType))
-    //            .ForMember(dest => dest.Market, opt => opt.MapFrom(src => src.Market))
-    //            .ForMember(dest => dest.BetSlip, opt => opt.MapFrom(src => src.BetSlip));
-    //        CreateMap<BetSlipEntity, BetSlip>()
-    //            .ForMember(dest => dest.Wallet, opt => opt.MapFrom(src => src.Wallet))
-    //            .ForMember(dest => dest.Items, opt => opt.MapFrom(src => src.BetItems));
-    //    }
-    //}
     public static class MappingProfile
     {
             // MatchEntity -> Match (Domain)
@@ -119,16 +98,11 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                 if (entity == null) return null!;
 
                 var betItems = entity.BetItems?.Select(bi => bi.ToDomain()).ToList() ?? new List<BetItem>();
-                var totalStake = betItems.Sum(bi => bi.Stake);
-                var feePercent = DefaultFeePercent;
-                var feeAmount = totalStake * feePercent;
-                var netStake = totalStake - feeAmount;
 
                 return new BetSlip
                 (
                     (Guid)entity.WalletId!, 
-                    betItems.AsReadOnly(),
-                    entity.Payout
+                    betItems.AsReadOnly()
             );
             }
 
@@ -138,15 +112,14 @@ namespace BetApp.Infrastructure.Persistence.Mappings
 
                 if (entity == null) return null!;
 
-            return new BetItem
-            (
-                entity.BetSlipId,
+                return new BetItem
+                (
                 entity.MarketId,
                 entity.MatchId,
                 entity.OddsAtPlacement,
                 (BetType)entity.BetType,
                 entity.Stake
-            );
+                );
         }
 
             // Domain -> DbEntity
@@ -215,7 +188,13 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                 {
                     Id = domain.Id,
                     WalletId = domain.WalletId,
-                    BetItems = domain.Items?.Cast<BetItem>().Select(i => i.ToDbEntity()).ToList() ?? new List<BetItemEntity>()
+                    FeePercent = domain.FeePercent,
+                    FeeAmount = domain.FeeAmount,
+                    NetStake = domain.NetStake,
+                    PlacedAt = domain.PlacedAt,
+                    TotalStake = domain.TotalStake,
+                    Payout = domain.Payout,
+                    BetItems = domain.BetItems?.Cast<BetItem>().Select(i => i.ToDbEntity()).ToList() ?? new List<BetItemEntity>()
                 };
             }
 
@@ -226,10 +205,11 @@ namespace BetApp.Infrastructure.Persistence.Mappings
                 return new BetItemEntity
                 {
                     Id = domain.Id,
-                    //BetSlipId = domain.BetSlipId,
                     MarketId = domain.MarketId,
+                    MatchId = domain.MatchId,
                     OddsAtPlacement = domain.OddsAtPlacement,
-                    BetType = (int)domain.Type
+                    BetType = (int)domain.Type,
+                    Stake = domain.Stake
                 };
             }
 
@@ -254,7 +234,7 @@ namespace BetApp.Infrastructure.Persistence.Mappings
             {
                 Id = entity.Id,
                 OccuredOn = entity.OccuredOn,
-                ProcessedOn = (DateTime)entity.ProcessedOn, // re-do
+                ProcessedOn = entity.ProcessedOn, // re-do
                 Payload = entity.Payload
             };
         }

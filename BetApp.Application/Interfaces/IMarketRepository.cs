@@ -20,5 +20,7 @@ namespace BetApp.Application.Interfaces
 
         Task SaveChangesAsync();
 
+        Task<bool> IsTopOffer(Guid marketId);
+
     }
 }

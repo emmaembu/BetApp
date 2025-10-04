@@ -1,4 +1,5 @@
 ﻿using BetApp.Application.DTOs;
+using BetApp.Application.Interfaces;
 using BetApp.Domain.Entities;
 using BetApp.Domain.Enums;
 using System;
@@ -40,30 +41,27 @@ namespace BetApp.Application.Mappers
             return new BetSlipRequestDto
             {
                 WalletId = betSlip.WalletId,
-                TotalStake = betSlip.TotalStake,
-                Items = betSlip.Items?.Select(i => i.ToDto()).ToList() ?? new List<BetItemDto>()
+                Items = betSlip.BetItems?.Select(i => i.ToDto()).ToList() ?? new List<BetItemDto>()
             };
         }
 
-        public static BetSlip ToDomain(this BetSlipRequestDto dto, Guid betSlipId)
+        public static BetSlip ToDomain(this BetSlipRequestDto dto)
         {
-            if (dto == null) return null;
             var betItems = dto.Items.Select(bi => new BetItem
-                (
-                   betSlipId: betSlipId,
-                   marketId: bi.MarketId,
-                   matchId: bi.MatchId,
-                   oddsAtPlacement: bi.OddsAtPlacement,
-                   type: bi.BetType,
-                   stake: bi.OddsAtPlacement // not good, check this
+            (
+                matchId: bi.MatchId,
+                marketId : bi.MarketId,
+                type : bi.BetType,
+                stake : bi.Stake,
+                oddsAtPlacement : bi.OddsAtPlacement
                 )).ToList();
+
             var betSlip = new BetSlip(
                 walletId: dto.WalletId,
-                items: betItems,
-                payout: 0
+                items: betItems
                 );
 
-            return betSlip;
+            return betSlip; 
         }
 
         // BetItem

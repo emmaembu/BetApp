@@ -16,31 +16,35 @@ namespace BetApp.Infrastructure.Persistence.Configurations
         {
             builder.ToTable("BetSlips");
 
-        builder.HasKey(bs => bs.Id);
+            builder.HasKey(bs => bs.Id);
 
-        builder.Property(bs => bs.Id).HasDefaultValueSql("NEWSEQUENTIALID()")
+            builder.Property(bs => bs.Id).HasDefaultValueSql("NEWSEQUENTIALID()")
                .ValueGeneratedNever();
 
-        builder.Property(bs => bs.WalletId)
+            builder.Property(bs => bs.WalletId)
                .IsRequired();
 
-        builder.Property(bs => bs.Stake)
+            builder.Property(bs => bs.NetStake)
                .HasColumnType("decimal(18,4)")
                .IsRequired();
 
-        builder.Property(bs => bs.TotalOdds)
+            builder.Property(bs => bs.FeePercent)
                .HasColumnType("decimal(18,6)") // preserve precision for multiplication
                .IsRequired();
 
-        builder.Property(bs => bs.FeePercent)
-               .HasColumnType("decimal(5,4)")
-               .IsRequired();
+            builder.Property(bs => bs.FeeAmount)
+                   .HasColumnType("decimal(18,6)") // preserve precision for multiplication
+                   .IsRequired();
 
-        builder.Property(bs => bs.PotentialPayout)
+            builder.Property(bs => bs.TotalStake)
                .HasColumnType("decimal(18,4)")
                .IsRequired();
 
-        builder.Property(bs => bs.PlacedAt)
+            builder.Property(bs => bs.Payout)
+                   .HasColumnType("decimal(18,4)")
+                   .IsRequired();
+
+            builder.Property(bs => bs.PlacedAt)
                .IsRequired();
 
         builder.HasOne(bs => bs.Wallet)
