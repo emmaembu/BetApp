@@ -26,3 +26,4 @@ Usage
 
 - Use API endpoints to manage bets.
 - Worker service handles payment transactions asynchronously.
+- To process payment simultaneously, set both BetApp and BetWorker to start in Multipe startup projects.
