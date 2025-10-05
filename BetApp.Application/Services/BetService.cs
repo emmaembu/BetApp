@@ -20,15 +20,13 @@ namespace BetApp.Application.Services
         private readonly IBetRepository _betRepository;
         private readonly IOutboxRepository _outboxRepository;
         private readonly IMarketRepository _marketRepository;
-        private readonly IBetSlipValidator _betSlipValidator;
         private readonly IWalletRepository _walletRepository;
 
-        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository, IMarketRepository marketRepository, IBetSlipValidator betSlipValidator, IWalletRepository walletRepository)
+        public BetService(IBetRepository betRepository, IOutboxRepository outboxRepository, IMarketRepository marketRepository, IWalletRepository walletRepository)
         {
             _betRepository = betRepository;
             _outboxRepository = outboxRepository;
             _marketRepository = marketRepository;
-            _betSlipValidator = betSlipValidator;
             _walletRepository = walletRepository;
         }
 
@@ -38,9 +36,6 @@ namespace BetApp.Application.Services
             var wallet = await _walletRepository.GetByIdAsync(betSlipDto.WalletId);
             if (wallet == null)
                 throw new Exception("Wallet not found");
-
-            // validate business rules
-            await _betSlipValidator.ValidateAsync(betSlipDto);
 
             // top offers etc.
             var betSlip = betSlipDto.ToDomain();
@@ -87,8 +82,20 @@ namespace BetApp.Application.Services
                     item.MarkAsTopOffer();
                 }
 
-                if (market.IsTopOffer && betSlip.BetItems.Any(i => i.MarketId != item.MarketId))
-                    throw new InvalidOperationException("TopOffer cannot be combined with other markets");
+                bool hasMixedTopOfferMatches = betSlip.BetItems.GroupBy(i => i.MatchId).Any(g => g.Any(i => i.WasTopOffer) && g.Any(i => !i.WasTopOffer));
+                if(hasMixedTopOfferMatches)
+                    throw new InvalidOperationException("A match cannot appear both as a top offer and a regular offer in the same bet slip.");
+
+                bool hasMultipleTopOffers = betSlip.BetItems.Count(i => i.WasTopOffer) > 1;
+                if(hasMultipleTopOffers)
+                    throw new InvalidOperationException("Top offer market cannot be combined with other top offer markets.");
+
+                if (market.Type != item.Type)
+                    throw new InvalidOperationException("Selection does not match market bet type");
+
+                if(market.Odds != item.OddsAtPlacement)
+                    throw new InvalidOperationException("Selection Odds do not match market odds");
+
 
             }
 

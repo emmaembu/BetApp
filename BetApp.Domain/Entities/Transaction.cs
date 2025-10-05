@@ -9,7 +9,7 @@ namespace BetApp.Domain.Entities
 {
     public class Transaction
     {
-        public Guid Id { get; set; }
+        public long Id { get; set; }
         public Guid WalletId { get; set; }
         public decimal Amount { get; set; } // positive = credit, negative = debit
         public decimal BalanceBefore { get; private set; }
@@ -23,7 +23,7 @@ namespace BetApp.Domain.Entities
 
         public Transaction(Guid walletId, decimal amount, decimal balanceBefore, decimal balanceAfter, TransactionType type , string description= "")
         {
-            Id = Guid.NewGuid();
+            //Id = Guid.NewGuid();
             WalletId = walletId;
             Amount = amount;
             BalanceBefore = balanceBefore;

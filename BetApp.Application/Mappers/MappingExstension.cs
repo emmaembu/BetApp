@@ -6,7 +6,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Match = BetApp.Domain.Entities.Match;
 
 namespace BetApp.Application.Mappers
 {
@@ -72,25 +74,12 @@ namespace BetApp.Application.Mappers
             {
                 MarketId = item.MarketId,
                 OddsAtPlacement = item.OddsAtPlacement,
-                BetType = item.Type
+                BetType = item.Type,
+                Stake = item.Stake
             };
         }
 
-        //public static BetItem ToDomain(this BetItemDto dto)
-        //{
-        //    if (dto == null) return null;
-        //    return new BetItem
-        //    (
-        //        matchId : dto.MatchId,
-        //        marketId : dto.MarketId,
-        //        oddsAtPlacement : dto.OddsAtPlacement,
-        //        stake: dto.OddsAtPlacement,
-        //        type : dto.BetType
-        //    );
-        //}
-
-
-        // Mat
+        // Match
         public static MatchDto  ToDto(this Match item)
         {
             if (item == null) return null;
@@ -121,10 +110,10 @@ namespace BetApp.Application.Mappers
             if (item == null) return null;
             return new MarketDto
             {
-                Id = item.Id,
                 MatchId = item.MatchId,
-                Type = item.Type.ToString(),//provjeri 
-                Odds = (decimal)item.Odds, //provjeri ove nullable i to
+                MarketId = item.Id, 
+                Type = item.Type.ToString(),
+                Odds = (decimal)item.Odds, 
                 IsTopOffer = item.IsTopOffer,
                 IsActive = item.IsActive
             };
@@ -135,12 +124,25 @@ namespace BetApp.Application.Mappers
             if (dto == null) return null;
             return new MarketDto
             {
-                Id = dto.Id,
                 MatchId = dto.MatchId,
                 Type = dto.Type.ToString(),
-                Odds = (decimal)dto.Odds, //provjeri ove nullable i to
+                Odds = (decimal)dto.Odds, 
                 IsTopOffer = dto.IsTopOffer,
                 IsActive = dto.IsActive
+            };
+        }
+
+        public static Market ToDomain(this AddMarketRequestDto dto)
+        {
+            if (dto == null) return null;
+            return new Market
+            {
+                Id = Guid.NewGuid(),
+                MatchId = dto.MatchId,
+                Type = Enum.Parse<BetType>(dto.Type),
+                Odds = dto.Odds,
+                IsTopOffer = dto.IsTopOffer,
+                IsActive = dto.Odds >= 1.0m
             };
         }
     }

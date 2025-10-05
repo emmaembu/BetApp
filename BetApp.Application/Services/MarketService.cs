@@ -24,7 +24,7 @@ namespace BetApp.Application.Services
         }
 
         // Add market by rules and topp offer
-        public async Task<Guid> AddMarketToMatchAsync(MarketDto marketDto)
+        public async Task<Guid> AddMarketToMatchAsync(AddMarketRequestDto marketDto)
         {
             if (marketDto.Odds < 1.0m)
                 throw new ArgumentException("Odds must be >= 1.0");
@@ -33,16 +33,7 @@ namespace BetApp.Application.Services
             if (match == null)
                 throw new Exception("Match not found");
 
-            var market = new Market // u entity
-            {
-                Id = Guid.NewGuid(),
-                MatchId = match.Id,
-                Type = Enum.Parse<BetType>(marketDto.Type),
-                Odds = marketDto.Odds,
-                IsTopOffer = marketDto.IsTopOffer,
-                IsActive = marketDto.Odds >= 1.0m
-            };
-
+            var market = marketDto.ToDomain();
             await _marketRepository.AddAsync(market);
             await _marketRepository.SaveChangesAsync();
 

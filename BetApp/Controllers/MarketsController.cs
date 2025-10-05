@@ -30,7 +30,7 @@ namespace BetApp.Controllers
         }
 
         [HttpPost("AddToMatch")]
-        public async Task<IActionResult> AddMarketToMatch([FromBody] MarketDto marketDto)
+        public async Task<IActionResult> AddMarketToMatch([FromBody] AddMarketRequestDto marketDto)
         {
             await _marketService.AddMarketToMatchAsync(marketDto);
             return Ok();

@@ -102,7 +102,16 @@ namespace BetApp.Infrastructure.Seed
                         Odds = null,
                         IsTopOffer = false,
                         IsActive = false
-                    }
+                    },
+                    new MarketEntity
+                     {
+                         Id = Guid.NewGuid(),
+                         MatchId = match2Id,
+                         BetType = (int)BetType.HomeOrDraw,
+                         Odds = 1.10M,
+                         IsTopOffer = true,
+                         IsActive = true
+                     }
                 );
 
                 await db.SaveChangesAsync();

@@ -8,6 +8,6 @@ namespace BetApp.Application.Interfaces
 
         Task<IEnumerable<OutboxMessage>> GetUnprocessedAsync();
 
-        Task MarkAsProcessedAsync(Guid id, string error = "");//re-do
+        Task MarkAsProcessedAsync(Guid id, string error = "");
     }
 }

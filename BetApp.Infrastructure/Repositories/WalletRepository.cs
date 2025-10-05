@@ -20,7 +20,7 @@ namespace BetApp.Infrastructure.Repositories
 
         public async Task<Wallet> GetByIdAsync(Guid id)
         {
-            var wallet =  await _appDbContext.Wallets.FindAsync(id);
+            var wallet =  await _appDbContext.Wallets.Include(w=>w.Transactions).FirstOrDefaultAsync(w=> w.Id == id);
             return wallet?.ToDomain();
         }
 
@@ -72,7 +72,6 @@ namespace BetApp.Infrastructure.Repositories
                 _appDbContext.Transactions.Add(transactionEntity);
             }
 
-            // save in database
             try
             {
                 await _appDbContext.SaveChangesAsync();

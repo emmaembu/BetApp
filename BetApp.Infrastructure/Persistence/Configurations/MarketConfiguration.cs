@@ -37,15 +37,11 @@ namespace BetApp.Infrastructure.Persistence.Configurations
             builder.Property(m => m.IsActive)
                 .IsRequired();
 
-            // relationship configured on Match side as well, keep behavior consistent
             builder.HasOne(m => m.Match)
                    .WithMany(ma => ma.Markets)
                    .HasForeignKey(m => m.MatchId)
                    .OnDelete(DeleteBehavior.Cascade);
 
-            // Optional: unique constraint per match+type so a match cannot have duplicate market type
-            builder.HasIndex(m => new { m.MatchId, m.BetType })
-                   .IsUnique();
 
         }
     }

@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 
 namespace BetApp.Application.DTOs
 {
-    public class MarketDto
+    public class AddMarketRequestDto
     {
         public Guid MatchId { get; set; }
 
-        public Guid MarketId { get; set; }
         public string Type { get; set; } = null!;
 
-        public decimal Odds { get; set; }   
+        public decimal Odds { get; set; }
 
         public bool IsTopOffer { get; set; }
 

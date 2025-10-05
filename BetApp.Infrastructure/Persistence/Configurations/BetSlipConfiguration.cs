@@ -57,7 +57,7 @@ namespace BetApp.Infrastructure.Persistence.Configurations
                .HasForeignKey(i => i.BetSlipId)
                .OnDelete(DeleteBehavior.Restrict);
 
-        // Optional: index by WalletId + PlacedAt for retrieval
+        //index by WalletId + PlacedAt for retrieval
         builder.HasIndex(bs => new { bs.WalletId, bs.PlacedAt
     });
     }

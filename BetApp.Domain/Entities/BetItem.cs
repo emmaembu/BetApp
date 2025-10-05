@@ -34,5 +34,6 @@ namespace BetApp.Domain.Entities
         {
             WasTopOffer = true;
         }
+
     }
 }

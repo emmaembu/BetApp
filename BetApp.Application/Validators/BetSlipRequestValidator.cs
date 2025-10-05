@@ -15,6 +15,8 @@ namespace BetApp.Application.Validators
                 items.RuleFor(i => i.MarketId).NotEmpty().WithMessage("MarketId is required!");
                 items.RuleFor(i => i.OddsAtPlacement).GreaterThanOrEqualTo(1.0M).WithMessage("The odds must be >= 1");
                 items.RuleFor(i => i.BetType).NotEmpty().IsInEnum().WithMessage("BetType is requred and must be in enum!");
+                items.RuleFor(i => i.Stake).GreaterThan(0M).WithMessage("The stake must be > 0");
+
             });
         }
     }

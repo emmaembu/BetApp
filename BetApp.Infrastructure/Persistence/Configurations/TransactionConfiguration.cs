@@ -27,7 +27,7 @@ namespace BetApp.Infrastructure.Persistence.Configurations
 
             builder.HasOne(t => t.Wallet)
                    .WithMany(w => w.Transactions)
-                   .HasForeignKey(t => t.WalletId)      // FK
+                   .HasForeignKey(t => t.WalletId)      
                    .OnDelete(DeleteBehavior.Restrict);
         }
     }

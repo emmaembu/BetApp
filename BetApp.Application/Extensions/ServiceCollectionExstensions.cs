@@ -14,7 +14,6 @@ namespace BetApp.Application.Extensions
             services.AddScoped<IMarketService, MarketService>();
             services.AddScoped<IWalletService, WalletService>();
             services.AddScoped<IMatchService, MatchService>();
-            services.AddScoped<IBetSlipValidator, BetSlipValidator>();
 
             return services;
         }

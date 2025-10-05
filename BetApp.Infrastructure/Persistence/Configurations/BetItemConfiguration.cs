@@ -46,7 +46,7 @@ namespace BetApp.Infrastructure.Persistence.Configurations
                .HasForeignKey(bi => bi.MarketId)
                .OnDelete(DeleteBehavior.Restrict);
 
-        // Optional: unique constraint to avoid duplicate market on same bet slip
+        // unique constraint to avoid duplicate market on same bet slip
         builder.HasIndex(bi => new { bi.BetSlipId, bi.MarketId
     })
                .IsUnique();
